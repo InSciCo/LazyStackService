@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Notification messaging using WebSockets
+Resources:
+  # AWS Lambda function for WebSocket
+  NotificationsWebSocketFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: NotificationsWebSocket::NotificationsWebSocket.Function::FunctionHandlerAsync
+      Runtime: dotnet6
+      CodeUri: ../../Lambdas/NotificationsWebSocket/bin/__UriCodeTarget__
+      Description: Manage WebSocket Connections
+      MemorySize: 256
+      Timeout: 30
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: '*'
+        - Statement:
+          - Effect: Allow
+            Action:
+              - execute-api:ManageConnections
+            Resource: 
+              Fn::Sub: arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${NotificationsWebSocketAPI}/*/*
+      Environment:
+        Variables:
+          COGNITO_REGION:
+            Ref: AWS::Region
+  
+  NotificationsWebSocketLambdaInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: NotificationsWebSocketFunction
+      Principal: apigateway.amazonaws.com
+
+  # WebSocketAPI
+  NotificationsWebSocketAPI:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: NotificationsWebSocketAPI
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: $request.body.eventType
+
+  # Connections
+  NotificationsConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: 
+        Ref: NotificationsWebSocketAPI
+      RouteKey: $connect
+      AuthorizationType: NONE
+      Target: 
+        Fn::Sub: "integrations/${NotificationsConnectIntegration}"
+
+  NotificationsConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: 
+        Ref: NotificationsWebSocketAPI
+      IntegrationType: AWS_PROXY
+      IntegrationUri: 
+        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotificationsWebSocketFunction.Arn}/invocations
+
+  # Messages
+  NotificationsMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: 
+        Ref: NotificationsWebSocketAPI
+      RouteKey: message
+      AuthorizationType: NONE
+      Target: 
+        Fn::Sub: "integrations/${NotificationsMessageIntegration}"
+
+  NotificationsMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: 
+        Ref: NotificationsWebSocketAPI
+      IntegrationType: AWS_PROXY
+      IntegrationUri: 
+        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotificationsWebSocketFunction.Arn}/invocations
+
+  # Messages
+  NotificationsDefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: 
+        Ref: NotificationsWebSocketAPI
+      RouteKey: $default
+      AuthorizationType: NONE
+      Target: 
+        Fn::Sub: "integrations/${NotificationsDefaultIntegration}"
+
+  NotificationsDefaultIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: 
+        Ref: NotificationsWebSocketAPI
+      IntegrationType: AWS_PROXY
+      IntegrationUri: 
+        Fn::Sub: arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotificationsWebSocketFunction.Arn}/invocations
+
+  # Deployment
+  NotificationsWebSocketDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn: 
+    - NotificationsMessageRoute
+    - NotificationsConnectRoute
+    - NotificationsDefaultRoute
+    Properties:
+      ApiId: 
+        Ref: NotificationsWebSocketAPI
+
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: 
+        Ref: NotificationsWebSocketAPI
+      DeploymentId: 
+        Ref: NotificationsWebSocketDeployment
+      StageName: __Stage__
+
+

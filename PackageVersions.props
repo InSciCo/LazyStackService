@@ -1,0 +1,22 @@
+<Project>
+    <PropertyGroup>
+        <!-- PetStore Solution Dependencies
+            Important: When you update The Directory.Packages.props file, you 
+            must update this file as well so solutions that consume LazyStack 
+            projects will have the correct versions and avoid package version 
+            conflicts.
+        -->
+        <Amazon_Lambda_APIGatewayEvents>2.6.0</Amazon_Lambda_APIGatewayEvents>
+        <Amazon_Lambda_AspNetCoreServer>8.1.0</Amazon_Lambda_AspNetCoreServer>
+        <Amazon_Lambda_Core>2.1.0</Amazon_Lambda_Core>
+        <Amazon_Lambda_Serialization_Json>2.1.1</Amazon_Lambda_Serialization_Json>
+        <Amazon_Lambda_Serialization_SystemTextJson>2.3.1</Amazon_Lambda_Serialization_SystemTextJson>
+		
+        <AWSSDK_ApiGatewayManagementApi>3.7.200.53</AWSSDK_ApiGatewayManagementApi>
+        <AWSSDK_DynamoDBv2>3.7.203.1</AWSSDK_DynamoDBv2>
+        <AWSSDK_Extensions_NETCore_Setup>3.7.7</AWSSDK_Extensions_NETCore_Setup>
+	
+		<NLog>5.2.4</NLog>
+        <System_IdentityModel_Tokens_Jwt>7.0.0</System_IdentityModel_Tokens_Jwt>
+    </PropertyGroup>
+</Project>

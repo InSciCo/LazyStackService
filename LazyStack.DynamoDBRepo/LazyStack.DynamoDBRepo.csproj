@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\PackageVersions.props"/>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Copyright>Copyright (c) 2021,2022 Insight Sciences Corporation. All rights reserved.</Copyright>
+		<Authors>Tim May, Thomas May</Authors>
+		<Company>Insight Sciences Corporation</Company>
+		<Description>CRUDL Library for DynamoDB</Description>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<RepositoryUrl>https://github.com/InSciCo/LazyStack</RepositoryUrl>
+		<RepositoryType>GitHub</RepositoryType>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageProjectUrl>https://lazystack.io</PackageProjectUrl>
+		<Version>3.0.0</Version>
+		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+	<PropertyGroup>
+		<CodeAnalysisRuleSet></CodeAnalysisRuleSet>
+		<CodeAnalysisAdditionalOptions>-disablerule:IDE0019</CodeAnalysisAdditionalOptions>
+	</PropertyGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="AWSSDK.DynamoDBv2"/>
+		<!--<PackageReference Include="Microsoft.Extensions.Configuration"/>-->
+		<PackageReference Include="Newtonsoft.Json"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\LazyStack.ControllerBase\LazyStack.ControllerBase.csproj" />
+	</ItemGroup>
+
+	<!-- Note: The signing step will not execute if the CertPassword.csproj file doesn't exist and contain a non-empty SIGN_CERT_HASH string -->
+	<Import Project="..\..\..\LazyStackCertificate\CertPassword.csproj" Condition="'$(Configuration)' == 'Release' AND Exists('..\..\..\LazyStackCertificate')" />
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' AND Exists('..\..\..\LazyStackCertificate') AND '$(SIGN_CERT_HASH)' != ''">
+		<NugetSignCommand>$(MSBuildProjectDirectory)\..\..\..\LazyStackCertificate\nuget sign -CertificateFingerprint $(SIGN_CERT_HASH) -Timestamper http://timestamp.digicert.com</NugetSignCommand>
+	</PropertyGroup>
+
+	<Target Name="SignPackage" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release' AND Exists('..\..\..\LazyStackCertificate') AND '$(SIGN_CERT_HASH)' != ''">
+		<Message Importance="High" Text="Signing Package" />
+		<Message Importance="High" Text="PackageVersion $(Version)" />
+		<Exec Command="$(NugetSignCommand) $(MSBuildProjectDirectory)\bin\Release\$(MSBuildProjectName).$(PackageVersion).nupkg" />
+	</Target>
+</Project>

@@ -1,0 +1,166 @@
+openapi: 3.0.0
+paths:
+  # LzNotification
+  '/lzNotificationsPage/list/subscriptionId/{subscriptionId}/dateTimeTicks/{dateTimeTicks}':
+    get:
+      operationId: LzNotificationsPageListSessionIdDateTimeTicks
+      description: list LzNotifications for current subscriptionId from specified dateTime
+      parameters:
+      - name: subscriptionId
+        in: path
+        required: true 
+        schema:
+          type: string
+      - name: dateTimeTicks
+        in: path
+        required: true 
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LzNotificationsPage'
+        '403':
+          description: Invalid permissions
+
+  /notification:
+    post:
+      summary: Create a notification record for testing 
+      operationId: addNotificaiton
+      x-lz-gencall: lzNotificationRepo.CreateAsync(callerInfo,body)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LzNotification'
+      responses:
+        '200':
+          description: successful operation 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LzNotification'
+
+  '/lzSubscription/{id}':
+    get:
+      operationId: getLzSubscriptionById
+      x-lz-gencall: lzSubscriptionRepo.ReadAsync(callerInfo,sessionId)   
+      description: GetLzSubscription record 
+      parameters:
+      - name: sessionId
+        in: path 
+        required: true 
+        schema:
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LzSubscription'
+        '403':
+          description: Invalid permissions
+
+  /lzSubscription:
+    post:
+      operationId: subscribe 
+      description: subscribe to topics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LzSubscription'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LzSubscription'
+        '405':
+          description: Invalid input
+
+components:
+  schemas:
+    LzNotification: 
+      type: object
+      x-lz-hasrepo: true
+      x-lz-genschemaclass: false
+      properties:
+        id:
+          type: string 
+        topicId:
+          type: string
+          nullable: true
+        userId:
+          type: string 
+          nullable: true
+        payloadParentId:
+          type: string 
+          nullable: true 
+        payloadId:
+          type: string 
+          nullable: true
+        payloadType:
+          type: string 
+          nullable: true
+        payload:
+          type: string
+          nullable: true
+        payloadAction:
+          type: string
+          nullable: true
+        createUtcTick: 
+          type: integer 
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64
+      required:
+        - id
+        - topicId
+        - userId
+        - payloadType
+        - payloadAction
+    LzNotificationsPage:
+      type: object
+      x-lz-genschemaclass: false
+      properties:
+        id:
+          type: string
+        LzNotifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/LzNotification'
+        more:
+          type: boolean
+    LzSubscription:
+      type: object 
+      x-lz-hasrepo: true
+      x-lz-genschemaclass: false
+      properties:
+        id:
+          description: subscriptionId
+          type: string 
+        connectionId:
+          description: web socket connectionId
+          type: string
+        userId:
+          description: lzUserId
+          type: string 
+          nullable: true
+        topicIds:
+          type: array
+          items:
+            type: string
+        createUtcTick: 
+          type: integer 
+          format: int64
+        updateUtcTick:
+          type: integer
+          format: int64

@@ -3,7 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1", "ClassLibrary1\ClassLibrary1.csproj", "{B72110A2-8B0B-4C09-92CE-4B0E6ECB0DA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.ControllerBase", "LazyStack.ControllerBase\LazyStack.ControllerBase.csproj", "{64A56EA1-4598-4D48-95B0-FCD2D3C9B23D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.DynamoDBRepo", "LazyStack.DynamoDBRepo\LazyStack.DynamoDBRepo.csproj", "{7DFCEAA5-3335-476D-9847-444129A2A7D3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.Notifications.FromStreams", "LazyStack.Notifications.FromStreams\LazyStack.Notifications.FromStreams.csproj", "{3B45B15A-C7E4-468A-9925-176DF04A3401}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.Notifications.Repo", "LazyStack.Notifications.Repo\LazyStack.Notifications.Repo.csproj", "{CC03390E-90F5-42EB-8626-FB35782CD76E}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "LazyStack.Notifications.SharedCode", "LazyStack.Notifications.SharedCode\LazyStack.Notifications.SharedCode.shproj", "{91C21338-C1A2-41D4-A2F8-282BDA7B0D74}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.Notifications.WebSocket", "LazyStack.Notifications.WebSocket\LazyStack.Notifications.WebSocket.csproj", "{CF7FCDDA-7320-4216-8326-BBE20BCD83A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36C9D1A0-1F33-4C1F-9B98-9BC6B727C068}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
+		LICENSE.txt = LICENSE.txt
+		PackageVersions.props = PackageVersions.props
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +29,34 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B72110A2-8B0B-4C09-92CE-4B0E6ECB0DA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B72110A2-8B0B-4C09-92CE-4B0E6ECB0DA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B72110A2-8B0B-4C09-92CE-4B0E6ECB0DA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B72110A2-8B0B-4C09-92CE-4B0E6ECB0DA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64A56EA1-4598-4D48-95B0-FCD2D3C9B23D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64A56EA1-4598-4D48-95B0-FCD2D3C9B23D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64A56EA1-4598-4D48-95B0-FCD2D3C9B23D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64A56EA1-4598-4D48-95B0-FCD2D3C9B23D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DFCEAA5-3335-476D-9847-444129A2A7D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DFCEAA5-3335-476D-9847-444129A2A7D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DFCEAA5-3335-476D-9847-444129A2A7D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DFCEAA5-3335-476D-9847-444129A2A7D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B45B15A-C7E4-468A-9925-176DF04A3401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B45B15A-C7E4-468A-9925-176DF04A3401}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B45B15A-C7E4-468A-9925-176DF04A3401}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B45B15A-C7E4-468A-9925-176DF04A3401}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC03390E-90F5-42EB-8626-FB35782CD76E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC03390E-90F5-42EB-8626-FB35782CD76E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC03390E-90F5-42EB-8626-FB35782CD76E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC03390E-90F5-42EB-8626-FB35782CD76E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF7FCDDA-7320-4216-8326-BBE20BCD83A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF7FCDDA-7320-4216-8326-BBE20BCD83A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF7FCDDA-7320-4216-8326-BBE20BCD83A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF7FCDDA-7320-4216-8326-BBE20BCD83A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99319201-E81D-4906-8CD9-AE17662019F7}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		LazyStack.Notifications.SharedCode\LazyStackNotificationsSharedCode.projitems*{91c21338-c1a2-41d4-a2f8-282bda7b0d74}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
