@@ -5,17 +5,17 @@
 		<PackageVersion Include="Newtonsoft.Json" Version="$(Newtonsoft_Json)" />
 
 		<!-- This solution's dependencies -->
-		<PackageVersion Include="Amazon.Lambda.APIGatewayEvents" Version="2.6.0" />
-		<PackageVersion Include="Amazon.Lambda.AspNetCoreServer" Version="8.1.0" />
-		<PackageVersion Include="Amazon.Lambda.Core" Version="2.1.0" />
+		<PackageVersion Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.0" />
+		<PackageVersion Include="Amazon.Lambda.AspNetCoreServer" Version="8.1.1" />
+		<PackageVersion Include="Amazon.Lambda.Core" Version="2.2.0" />
 		<PackageVersion Include="Amazon.Lambda.Serialization.Json" Version="2.1.1" />
-		<PackageVersion Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.3.1" />
+		<PackageVersion Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.0" />
 
-		<PackageVersion Include="AWSSDK.ApiGatewayManagementApi" Version="3.7.200.53" />
-		<PackageVersion Include="AWSSDK.DynamoDBv2" Version="3.7.203.1" />
-		<PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.7" />
+		<PackageVersion Include="AWSSDK.ApiGatewayManagementApi" Version="3.7.300.12" />
+		<PackageVersion Include="AWSSDK.DynamoDBv2" Version="3.7.300.12" />
+		<PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
 
 		<PackageVersion Include="NLog" Version="5.2.4" />
-		<PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.0.0" />
+		<PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
 	</ItemGroup>
 </Project>

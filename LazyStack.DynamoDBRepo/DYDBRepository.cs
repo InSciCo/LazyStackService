@@ -436,6 +436,7 @@ public abstract
         var table = queryRequest.TableName;
         bool useCache2 = (useCache != null) ? (bool)useCache : AlwaysCache;
         Dictionary<string, AttributeValue> lastEvaluatedKey = null;
+        const int maxResponseSize = 5248000; // 5MB
         try
         {
             var list = new List<TEnv>();
@@ -452,7 +453,7 @@ public abstract
                 {
                     var envelope = new TEnv() { DbRecord = item };
                     responseSize += envelope.JsonSize;
-                    if (responseSize > 5120)
+                    if (responseSize > maxResponseSize)
                         break;
 
                     list.Add(envelope);
@@ -460,7 +461,7 @@ public abstract
                     if (useCache2 || cache.ContainsKey(key))
                         cache[key] = (envelope, DateTime.UtcNow.Ticks);
                 }
-            } while (responseSize <= 5120 && lastEvaluatedKey != null && list.Count < limit);
+            } while (responseSize <= maxResponseSize && lastEvaluatedKey != null && list.Count < limit);
             var statusCode = lastEvaluatedKey == null ? 200 : 206;
             PruneCache();
 
