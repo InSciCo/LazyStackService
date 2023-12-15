@@ -15,6 +15,7 @@
         <AWSSDK_ApiGatewayManagementApi>3.7.300.12</AWSSDK_ApiGatewayManagementApi>
         <AWSSDK_DynamoDBv2>3.7.300.12</AWSSDK_DynamoDBv2>
         <AWSSDK_Extensions_NETCore_Setup>3.7.300</AWSSDK_Extensions_NETCore_Setup>
+	    <AWSSDK_SecurityToken>3.7.300.18</AWSSDK_SecurityToken>
 	
 		<NLog>5.2.4</NLog>
         <System_IdentityModel_Tokens_Jwt>7.0.3</System_IdentityModel_Tokens_Jwt>
