@@ -94,7 +94,7 @@ components:
       properties:
         id:
           type: string 
-        topicId:
+        topics:
           type: string
           nullable: true
         userId:
@@ -115,6 +115,9 @@ components:
         payloadAction:
           type: string
           nullable: true
+        sessionId:
+          type: string
+          nullable: true    
         createUtcTick: 
           type: integer 
           format: int64

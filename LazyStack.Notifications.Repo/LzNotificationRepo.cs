@@ -1,4 +1,6 @@
-﻿namespace LazyStack.Notifications.Repo;
+﻿using System;
+
+namespace LazyStack.Notifications.Repo;
 
 public class LzNotificationEnvelope : DataEnvelope<LzNotification>
 {
@@ -11,9 +13,8 @@ public class LzNotificationEnvelope : DataEnvelope<LzNotification>
         EntityInstance.Id = guid;
         PK = DefaultPK; // Partition key
         SK = $"{guid}:"; // we use a guid in case we ever want to merge notifications across physical partitions.
-        SK1 = $"{EntityInstance.TopicId}:{EntityInstance.CreateUtcTick:X16}:";
-        SK2 = $"{EntityInstance.CreateUtcTick:X16}:";
-        SK3 = $"{-EntityInstance.CreateUtcTick:D19}:"; // Reverse order index for getting latest items
+        SK1 = $"{EntityInstance.CreateUtcTick:X16}:"; // ascending order index 
+        SK2 = $"{-EntityInstance.CreateUtcTick:D19}:"; // Reverse order index for getting latest items
         base.SealEnvelope();
     }
     public override string CurrentTypeName { get; set; } = $"{DefaultPK}v1.0.0";
@@ -26,10 +27,10 @@ public class LzNotificationEnvelope : DataEnvelope<LzNotification>
 /// Notes: 
 /// - This repo assumes that the LzNotification records are stored in 
 /// a table identified by {table}-LzNotifications. We keep the notification records separate 
-/// from the main table to avoid doubling up on streams from the main table. Remmeber that
-/// The LzNotificationsFromStream lambda is reading batchs of changes on the main table and
+/// from the main table to avoid doubling up on streams from the main table. Remember that
+/// The LzNotificationsFromStream lambda is reading batches of changes on the main table and
 /// writing LzNotification records. If the LzNotifications records were in the main table, we 
-/// would get batches of these in the stream and just ignore them. Also, since we have the 
+/// would get batches of these in the stream and just have to ignore them. Also, since we have the 
 /// notifications in a separate table, other table specific configurations can be tailored 
 /// to their use; for instance, there is no reason to backup notifications.
 /// 
@@ -72,7 +73,6 @@ public class LzNotificationRepo : DYDBRepository<LzNotificationEnvelope, LzNotif
         UpdateReturnsOkResult = false; // just return value
         TTL = 48 * 60 * 60; // 48 hours 
     }
-
 
     protected readonly SortedDictionary<long, LzNotification> notificationsCache = new();
     protected long earliestCacheItemTick;
@@ -121,7 +121,6 @@ public class LzNotificationRepo : DYDBRepository<LzNotificationEnvelope, LzNotif
 
         return new ObjectResult(new LzNotificationsPage() { LzNotifications = notifications, More = false }); ;
     }
-
     /// <summary>
     /// This method reads the latest  Notifciation records with CreatedAt
     /// >= earliestTick. It maintains a notificationsCache of records having 
@@ -150,7 +149,7 @@ public class LzNotificationRepo : DYDBRepository<LzNotificationEnvelope, LzNotif
             var startOfRange = -nowTick;
             var endOfRange = notificationsCache.Count > 0 ? notificationsCache.First().Value.CreateUtcTick : -earliestTick;
 
-            var (objResult, size) = await ListAndSizeAsync(QueryRange(PK, "SK3", $"{startOfRange:D19}:", $"{endOfRange:D19}:", table: callerInfo.Table + "-LzNotifications"), useCache: false);
+            var (objResult, size) = await ListAndSizeAsync(QueryRange(PK, "SK2", $"{startOfRange:D19}:", $"{endOfRange:D19}:", table: callerInfo.Table + "-LzNotifications"), useCache: false);
             statusCode = (int)objResult!.StatusCode!;
 
             if (statusCode < 200 && statusCode > 299)
@@ -175,15 +174,15 @@ public class LzNotificationRepo : DYDBRepository<LzNotificationEnvelope, LzNotif
         } while (statusCode == 206);
 
         // Next, if the earliestTick is before the tick of the earliest tick in notificationsCache, we load that set of records.
-        // Note: This step can also grow the cache beyound the MaxNotifciationsCacheSize. We prune the cache before we leave method.
-        // Note: Using SK2 which is the ascending order index on CreatedAt
+        // Note: This step can also grow the cache beyond the MaxNotificationsCacheSize. We prune the cache before we leave method.
+        // Note: Using SK1 which is the ascending order index on CreatedAt
         if (notificationsCache.Count > 0 && earliestTick < notificationsCache.Keys.First() + 1)
             do
             {
                 var startOfRange = earliestTick;
                 var endOfRange = notificationsCache.Keys.First() + 1;
 
-                var (objResult, size) = await ListAndSizeAsync(QueryRange(PK, "SK2", $"{startOfRange:X16}:", $"{endOfRange:X16}:", table: callerInfo.Table + "-LzNotifications"), useCache: false);
+                var (objResult, size) = await ListAndSizeAsync(QueryRange(PK, "SK1", $"{startOfRange:X16}:", $"{endOfRange:X16}:", table: callerInfo.Table + "-LzNotifications"), useCache: false);
                 statusCode = (int)objResult!.StatusCode!;
 
                 if (statusCode < 200 && statusCode > 299)
@@ -196,7 +195,7 @@ public class LzNotificationRepo : DYDBRepository<LzNotificationEnvelope, LzNotif
                     return new ObjectResult(null) { StatusCode = statusCode };
                 }
 
-                // Add retreived items to cache
+                // Add retrieved items to cache
                 var list = objResult.Value as List<LzNotification>;
                 if (list != null)
                     foreach (var item in list)
@@ -233,4 +232,40 @@ public class LzNotificationRepo : DYDBRepository<LzNotificationEnvelope, LzNotif
 
         return new ObjectResult(returnList) { StatusCode = statusCode };
     }
+
+    public override async Task WriteNotificationAsync(ICallerInfo callerInfo, string dataType, string data, string topics, long updatedUtcTick, string action)
+    {
+        var notification = new LzNotification()
+        {
+            PayloadType = dataType,
+            Payload = data,
+            Topics = topics,
+            CreateUtcTick = updatedUtcTick,
+
+            PayloadAction = action
+        };
+        await CreateAsync(callerInfo, notification);
+    }
+
+    public override async Task WriteDeleteNotificationAsync(ICallerInfo callerInfo, string dataType, string sk, string topics, long updatedUtcTick)
+    {
+
+        var id = sk.Substring(0, sk.IndexOf(':'));  
+
+        var data = @$"{{
+            ""id"": ""{id}""
+        }}";   
+
+        var notification = new LzNotification()
+        {
+            PayloadType = dataType,
+            Payload = data,
+            Topics = topics,
+            CreateUtcTick = updatedUtcTick,
+            PayloadAction = "Delete"
+        };
+
+        await CreateAsync(callerInfo, notification);
+    }
+
 }

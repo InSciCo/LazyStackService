@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-namespace LazyStack.DynamoDBRepo;
+﻿namespace LazyStack.DynamoDBRepo;
 
 /// <summary>
 /// Map CRUDL operations onto DynamoDBv2.Model namespace operations (low level access)
@@ -53,6 +49,7 @@ public abstract
     public bool UseIsDeleted { get; set; }
     public bool UseSoftDelete { get; set; }
     public string PK { get; set; }
+    public bool UseNotifications { get; set; }  
     #endregion
 
     protected virtual long GetTTL()
@@ -127,10 +124,13 @@ public abstract
 
             envelope.SealEnvelope();
 
-            // Wait until just before write to serialize EntityInstance (captures updates to UtcTick fields)
-            envelope.DbRecord.Add("Data", new AttributeValue() { S = JsonConvert.SerializeObject(envelope.EntityInstance) });
+            // Wait until just before write to serialize EntityInstance (captures updates to UtcTick fields just assigned)
+            var jsonData = JsonConvert.SerializeObject(envelope.EntityInstance);
+            envelope.DbRecord.Add("Data", new AttributeValue() { S = jsonData });
 
             AddOptionalAttributes(callerInfo, envelope); // Adds TTL, Topics when specified
+            AddOptionalTTLAttribute(callerInfo, envelope); // Adds TTL attribute when GetTTL() is not 0
+            var topics = AddOptionalTopicsAttribute(callerInfo, envelope); // Adds Topics attribute when GetTopics() is not empty
 
             var request = new PutItemRequest()
             {
@@ -146,6 +146,9 @@ public abstract
                 cache[$"{table}:{envelope.PK}{envelope.SK}"] = (envelope, DateTime.UtcNow.Ticks);
                 PruneCache();
             }
+            
+            if(UseNotifications)
+                await WriteNotificationAsync(callerInfo, envelope.TypeName, jsonData, topics, envelope.UpdateUtcTick, "Create");
 
             return envelope;
         }
@@ -154,6 +157,16 @@ public abstract
         catch (AmazonServiceException) { return new StatusCodeResult(500); }
         catch { return new StatusCodeResult(500); }
     }
+    public virtual Task WriteNotificationAsync(ICallerInfo callerInfo, string dataType, string data, string topics, long updatedUtcTick, string action)
+    {
+        throw new NotImplementedException();
+    }
+
+    public virtual Task WriteDeleteNotificationAsync(ICallerInfo callerInfo, string dataType, string sk, string topics, long updatedUtcTick)
+    {
+        throw new NotImplementedException();
+    }
+
     public virtual async Task<ActionResult<T>> CreateAsync(string table, T data, bool? useCache = null)
         => await CreateAsync(new CallerInfo() { Table = table }, data, useCache);
     public virtual async Task<ActionResult<T>> CreateAsync(ICallerInfo callerInfo, T data, bool? useCache = null)
@@ -291,21 +304,32 @@ public abstract
 
     /// <summary>
     /// Add optional attributes to envelope prior to create or update. 
-    /// This routine currently handels the optional attributes TTL and Topics.
+    /// This routine currently handles the optional attributes TTL and Topics.
     /// </summary>
     /// <param name="envelope"></param>
-    public virtual void AddOptionalAttributes(ICallerInfo callerInfo, TEnv envelope, bool isDeleted = false)
+    public virtual bool AddOptionalTTLAttribute(ICallerInfo callerInfo, TEnv envelope)
     {
         // Add TTL attribute when GetTTL() is not 0
         var ttl = GetTTL();
-        if (ttl != 0)
-            envelope.DbRecord.Add("TTL", new AttributeValue() { N = ttl.ToString() });
-
+        if (ttl == 0)
+            return false;
+        envelope.DbRecord.Add("TTL", new AttributeValue() { N = ttl.ToString() });
+        return true;
+    }
+    public virtual string AddOptionalTopicsAttribute(ICallerInfo callerInfo, TEnv envelope)
+    {
         // Add Topics attribute when GetTopics() is not empty 
         var topics = SetTopics();
-        if (!string.IsNullOrEmpty(topics))
-            envelope.DbRecord.Add("Topics", new AttributeValue() { S = topics });
+        if (string.IsNullOrEmpty(topics))
+            return string.Empty;
+        envelope.DbRecord.Add("Topics", new AttributeValue() { S = topics });
+        return topics;
     }
+    public virtual void AddOptionalAttributes(ICallerInfo callerInfo, TEnv envelope)
+    {
+        return;
+    }   
+
     public virtual async Task<ActionResult<TEnv>> UpdateEAsync(string table, T data)
         => await UpdateEAsync(new CallerInfo() { Table = table }, data);
     public virtual async Task<ActionResult<TEnv>> UpdateEAsync(ICallerInfo callerInfo, T data)
@@ -319,10 +343,9 @@ public abstract
         if (data.Equals(null))
             return new StatusCodeResult(400);
 
-        TEnv envelope = new() { EntityInstance = data };
-
         try
         {
+            TEnv envelope = new() { EntityInstance = data };
             var OldUpdateUtcTick = envelope.UpdateUtcTick;
             var now = DateTime.UtcNow.Ticks;
             envelope.UpdateUtcTick = now; // The UpdateUtcTick Set calls SetUpdateUtcTick where you can update your entity data record 
@@ -330,9 +353,12 @@ public abstract
             envelope.SealEnvelope();
 
             // Waiting until just before write to serialize EntityInstance (captures updates to UtcTick fields)
-            envelope.DbRecord.Add("Data", new AttributeValue() { S = JsonConvert.SerializeObject(envelope.EntityInstance) });
+            var jsonData = JsonConvert.SerializeObject(envelope.EntityInstance);
+            envelope.DbRecord.Add("Data", new AttributeValue() { S = jsonData });
 
-            AddOptionalAttributes(callerInfo, envelope); // Adds TTL, Topics when specified
+            AddOptionalAttributes(callerInfo, envelope); // Adds any user specified attributes
+            AddOptionalTTLAttribute(callerInfo, envelope); // Adds TTL attribute when GetTTL() is not 0
+            var topics = AddOptionalTopicsAttribute(callerInfo, envelope); // Adds Topics attribute when GetTopics() is not empty
 
             // Write data to database - use conditional put to avoid overwriting newer data
             var request = new PutItemRequest()
@@ -346,18 +372,18 @@ public abstract
                 }
             };
 
-            await client.PutItemAsync(request);
+            await client.PutItemAsync(request); 
 
             var key = $"{table}:{envelope.PK}{envelope.SK}";
             if (cache.ContainsKey(key)) cache[key] = (envelope, DateTime.UtcNow.Ticks);
             PruneCache();
 
-            if (UpdateReturnsOkResult)
-            {
-                return new OkObjectResult(envelope.EntityInstance);
-            }
-            else
-                return envelope;
+            if (UseNotifications)
+                await WriteNotificationAsync(callerInfo, envelope.TypeName, jsonData, topics, now, "Update");
+
+            return (UpdateReturnsOkResult)
+                ? new OkObjectResult(envelope.EntityInstance)
+                : envelope;
         }
         catch (ConditionalCheckFailedException) { return new ConflictResult(); } // STatusCode 409
         catch (AmazonDynamoDBException) { return new StatusCodeResult(500); }
@@ -390,23 +416,6 @@ public abstract
             if (string.IsNullOrEmpty(pK))
                 return new StatusCodeResult(406); // bad key
 
-            if (UseIsDeleted)
-            {
-                // UseIsDeleted allows our Notifications process will receive
-                // the SessionId of the client that deleted the record. This 
-                // in turn allows us to avoid sending that notification back
-                // to the originating client. 
-                var readResult = await ReadEAsync(callerInfo, pK, sK);
-                var envelope = readResult.Value;
-                if (envelope is null)
-                    return new StatusCodeResult(200);
-                envelope.IsDeleted = true;
-                envelope.UseTTL = UseSoftDelete; // DynamoDB will delete records after TTL reached
-                var updateResult = await UpdateEAsync(callerInfo, envelope.EntityInstance);
-                if (updateResult.Result is not null)
-                    return (StatusCodeResult)updateResult.Result;
-            }
-
             if (!UseSoftDelete)
             {
                 var request = new DeleteItemRequest()
@@ -419,6 +428,27 @@ public abstract
                     }
                 };
                 await client.DeleteItemAsync(request);
+            }
+
+            if (UseSoftDelete || UseNotifications)
+            {
+                var readResult = await ReadEAsync(callerInfo, pK, sK);
+                var envelope = readResult.Value;
+                if (envelope is null)
+                    return new StatusCodeResult(200);
+                if (UseSoftDelete)
+                {
+                    envelope.IsDeleted = true;
+                    envelope.UseTTL = true; // DynamoDB will delete records after TTL reached. Envelope class sets TTL when UseTTL is true.
+                    var updateResult = await UpdateEAsync(callerInfo, envelope.EntityInstance);
+                    if (updateResult.Result is not null)
+                        return (StatusCodeResult)updateResult.Result; // return error code
+                }
+                if (UseNotifications)
+                {
+                    var topics = SetTopics();
+                    await WriteDeleteNotificationAsync(callerInfo, envelope.TypeName, sK, topics, DateTime.UtcNow.Ticks);
+                }
             }
 
             var key = $"{table}:{pK}{sK}";
@@ -634,7 +664,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
 
         return query;
@@ -668,7 +698,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
         return query;
     }
@@ -700,7 +730,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
         return query;
     }
@@ -732,7 +762,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
         return query;
     }
@@ -764,7 +794,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
         return query;
     }
@@ -796,7 +826,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
         return query;
     }
@@ -828,7 +858,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
         return query;
     }
@@ -856,7 +886,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
         return query;
     }
@@ -907,7 +937,7 @@ public abstract
         if (UseIsDeleted)
         {
             query.ExpressionAttributeValues.Add(":IsDeleted", new AttributeValue() { BOOL = false });
-            query.FilterExpression = "IsDeleted = :IsDeleted";
+            query.FilterExpression = "IsDeleted = :IsDeleted"; // IsDeleted = False
         }
         return query;
     }

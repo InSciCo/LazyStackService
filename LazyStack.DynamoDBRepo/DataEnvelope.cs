@@ -18,8 +18,8 @@ public abstract class DataEnvelope<T> : IDataEnvelope<T>
 
     /// <summary>
     /// Set this value to false if you are not using Utc for optimistic locking
-    /// This will avoide the small reflection overhead of checking for default 
-    /// UpdateUtcTick and CreateUtcTick fields in your data entity type,.
+    /// This will avoid the small reflection overhead of checking for default 
+    /// UpdateUtcTick and CreateUtcTick fields in your data entity type.
     /// </summary>
     protected bool defaultUtcHandling = true;
     /// <summary>
@@ -75,7 +75,7 @@ public abstract class DataEnvelope<T> : IDataEnvelope<T>
     public long TTLPeriod { get; set; } = 172800; // 48 hours default. 
 
     public int JsonSize { get; private set; }
-    public bool IsDeleted { get; set; }
+    public bool IsDeleted { get; set; } // Used for soft delete
     public string SessionId { get; set; }
     public long CreateUtcTick
     {

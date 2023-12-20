@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LazyStack.Notifications.WebSocketService", "LazyStack.Notifications.WebSocketService\LazyStack.Notifications.WebSocketService.csproj", "{892CA34A-E566-446C-B2D5-C0A5F10D93A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{CF7FCDDA-7320-4216-8326-BBE20BCD83A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF7FCDDA-7320-4216-8326-BBE20BCD83A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF7FCDDA-7320-4216-8326-BBE20BCD83A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{892CA34A-E566-446C-B2D5-C0A5F10D93A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{892CA34A-E566-446C-B2D5-C0A5F10D93A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{892CA34A-E566-446C-B2D5-C0A5F10D93A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{892CA34A-E566-446C-B2D5-C0A5F10D93A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

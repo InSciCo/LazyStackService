@@ -12,8 +12,11 @@
         bool UpdateReturnsOkResult { get; set; }
         bool UseIsDeleted { get; set; }
         bool UseSoftDelete { get; set; }
+        bool UseNotifications { get; set; }
 
-        void AddOptionalAttributes(ICallerInfo callerInfo, TEnv envelope, bool isDeleted = false);
+        void AddOptionalAttributes(ICallerInfo callerInfo, TEnv envelope);
+        Task WriteDeleteNotificationAsync(ICallerInfo callerInfo, string dataType, string sk, string topics, long updatedUtcTick);
+        Task WriteNotificationAsync(ICallerInfo callerInfo, string dataType, string data, string topics, long updatedUtcTick, string action);
         Task<ActionResult<T>> CreateAsync(ICallerInfo callerInfo, T data, bool? useCache = null);
         Task<ActionResult<T>> CreateAsync(string table, T data, bool? useCache = null);
         Task<ActionResult<TEnv>> CreateEAsync(ICallerInfo callerInfo, T data, bool? useCache = null);
