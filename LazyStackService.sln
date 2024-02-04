@@ -17,13 +17,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.Notifications.Web
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36C9D1A0-1F33-4C1F-9B98-9BC6B727C068}"
 	ProjectSection(SolutionItems) = preProject
+		CommonPackageHandling.targets = CommonPackageHandling.targets
 		Directory.Packages.props = Directory.Packages.props
 		LICENSE.txt = LICENSE.txt
+		NOTIFICATIONS.md = NOTIFICATIONS.md
 		PackageVersions.props = PackageVersions.props
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LazyStack.Notifications.WebSocketService", "LazyStack.Notifications.WebSocketService\LazyStack.Notifications.WebSocketService.csproj", "{892CA34A-E566-446C-B2D5-C0A5F10D93A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.Notifications.WebSocketService", "LazyStack.Notifications.WebSocketService\LazyStack.Notifications.WebSocketService.csproj", "{892CA34A-E566-446C-B2D5-C0A5F10D93A2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.Notifications.DynamoDBRepo", "LazyStack.Notifications.DynamoDBRepo\LazyStack.Notifications.DynamoDBRepo.csproj", "{C95BCB4F-E4FC-49F4-B57F-D499BD74E394}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +59,10 @@ Global
 		{892CA34A-E566-446C-B2D5-C0A5F10D93A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{892CA34A-E566-446C-B2D5-C0A5F10D93A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{892CA34A-E566-446C-B2D5-C0A5F10D93A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C95BCB4F-E4FC-49F4-B57F-D499BD74E394}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C95BCB4F-E4FC-49F4-B57F-D499BD74E394}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C95BCB4F-E4FC-49F4-B57F-D499BD74E394}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C95BCB4F-E4FC-49F4-B57F-D499BD74E394}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\PackageVersions.props"/>
+	<Import Project="..\CommonPackageHandling.targets" />
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
+		<Description>LazyStack Controller Base (Utilities used by other controllers)</Description>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>

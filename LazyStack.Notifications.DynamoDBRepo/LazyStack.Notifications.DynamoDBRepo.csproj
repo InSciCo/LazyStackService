@@ -2,17 +2,15 @@
 	<Import Project="..\CommonPackageHandling.targets" />
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Description>LazyStack Notifications Repo</Description>
+		<Description>LazyStack Notifications DynamoDBRepo</Description>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LazyStack.ControllerBase\LazyStack.ControllerBase.csproj" />
 		<ProjectReference Include="..\LazyStack.DynamoDBRepo\LazyStack.DynamoDBRepo.csproj" />
-		<ProjectReference Include="..\..\LazyStackShared\LazyStack.Notifications.Schema\LazyStack.Notifications.Schema.csproj" />
+		<ProjectReference Include="..\LazyStack.Notifications.Repo\LazyStack.Notifications.Repo.csproj" />
 	</ItemGroup>
 
 </Project>

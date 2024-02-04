@@ -1,7 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\PackageVersions.props"/>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\CommonPackageHandling.targets" />
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
+		<Description>LazyStack Notifications WebSocket Lambda</Description>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>

@@ -11,5 +11,6 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)NotificationsSvc.yaml" />
     <None Include="$(MSBuildThisFileDirectory)NotificationsSvcSAM.yaml" />
+    <None Include="$(MSBuildThisFileDirectory)README.MD" />
   </ItemGroup>
 </Project>
