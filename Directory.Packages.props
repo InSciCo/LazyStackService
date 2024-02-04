@@ -1,5 +1,4 @@
 <Project>
-  <Import Project="../LazyStackShared/PackageVersions.props" />
   <ItemGroup>
     <PackageVersion Include="Amazon.Lambda.APIGatewayEvents" Version="2.7.0" />
     <PackageVersion Include="Amazon.Lambda.AspNetCoreServer" Version="8.1.1" />

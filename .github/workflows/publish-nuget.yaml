@@ -14,7 +14,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.x' # Update to your .NET version
+        dotnet-version: '6.x' # Update to your .NET version
 
     - name: Create NuGet.Config
       run: |
