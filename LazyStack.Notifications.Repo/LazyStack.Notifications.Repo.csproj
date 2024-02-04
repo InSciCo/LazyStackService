@@ -10,9 +10,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="LazyStack.Notifications.Schema" />
 		<ProjectReference Include="..\LazyStack.ControllerBase\LazyStack.ControllerBase.csproj" />
 		<ProjectReference Include="..\LazyStack.DynamoDBRepo\LazyStack.DynamoDBRepo.csproj" />
-		<ProjectReference Include="..\..\LazyStackShared\LazyStack.Notifications.Schema\LazyStack.Notifications.Schema.csproj" />
 	</ItemGroup>
 
 </Project>
