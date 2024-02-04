@@ -53,10 +53,14 @@
 		<Message Importance="high" Text="Deleting package $(AssemblyName) version $(Version) from cache folder $(PackageFolder)" />
 
 		<!-- Windows-specific delete command -->
-		<Exec Command="cmd.exe /c &quot;if exist &quot;$(PackageFolder)&quot; rmdir /s /q &quot;$(PackageFolder)&quot;&quot;" Condition=" '$(OS)' == 'Windows_NT' " />
+		<Exec
+			Condition=" '$(OS)' == 'Windows_NT' AND Exists('$(PackageCacheFolder)')"
+			Command="cmd.exe /c &quot;if exist &quot;$(PackageCacheFolder)&quot; rmdir /s /q &quot;$(PackageCacheFolder)&quot;&quot;"  />
 
 		<!-- Unix/Linux/Mac-specific delete command -->
-		<Exec Command="rm -rf &quot;$(PackageFolder)&quot;" Condition=" '$(OS)' != 'Windows_NT' " />
+		<Exec
+			Condition=" '$(OS)' != 'Windows_NT'  AND Exists('$(PackageCacheFolder)')"
+			Command="rm -rf &quot;$(PackageCacheFolder)&quot;"  />
 	</Target>	
 	
 </Project>
