@@ -1,21 +1,39 @@
-﻿namespace LazyStack.ControllerBase;
+﻿using Microsoft.Extensions.Primitives;
+
+namespace LazyStack.ControllerBase;
 
 /// <summary>
 /// This abstract class performs common housekeeping tasks for 
 /// controllers. You must implement at least:
 /// LoadPermissionsAsync() - initializes defaultPerm, adminPerm, methodPermissions
 /// 
+/// The virtual method GetCallerInfoAsync() is called with each endpoint call to allow 
+/// you to implement various strategies for updating user permissions. GetCallerInfoAsync()
+/// calls various helper methods. Here is the outline of that process:
+/// Endpoint() 
+///   callerInfo = GetCallerInfoAsync(request)
+///     tenantKey = GetTenantKeyAsync(request)
+///     table = GetTenantTableAsync(tenantKey)
+///     (lzUserId, userName) = GetUserInfo(request)
+///     List<string> permissions = GetUserPermissionsAsync(lzUserId, userName, tenantKey)
+///     return new CallerInfo(lzUserId, userName, table, permissions)
+///   hasPermission = HasPermissionAsync(methodName, callerInfo.permissions) 
+///   
+/// Once we have the CallerInfo object, we pass it along to repository methods. The 
+/// table property in the CallerInfo object is used to determine which DynamoDB table 
+/// the repository will access. Note that some endpoints may make multiple repository 
+/// calls using different tables or just a table different from the default tenant table. 
+/// In those cases, override the endpoint method to update the table property before 
+/// you make the repository call.
 /// </summary>
 public abstract class LzControllerUtils : IControllerUtils
 {
     protected List<string> defaultPerm = new();
     protected List<string> adminPerm = new();
-    protected bool multiTenant;
     protected bool authenticate = true;
     protected Dictionary<string, List<string>> methodPermissions = new();
     protected string dynamoDbTable = string.Empty;
     protected bool permissionsLoaded;
-    protected JObject config = new();
 
     /// <summary>
     /// This method looks up the methodName and compares the required permissions (if any)
@@ -52,8 +70,11 @@ public abstract class LzControllerUtils : IControllerUtils
     {
         try
         {
+            // TentantKey Header 
+            string tenantKey = await GetTenantKeyAsync(request);
+
             // TenantKey Header - Used to get tenant table
-            string table = await GetTenantTableAsync(request);
+            string table = await GetTenantTableAsync(tenantKey);
 
             // Authorization Header  - used to get user identity
             (string lzUserId, string userName) = GetUserInfo(request);
@@ -71,7 +92,8 @@ public abstract class LzControllerUtils : IControllerUtils
                 LzUserId = lzUserId,
                 UserName = userName,
                 Table = table,
-                Permissions = permissions
+                Permissions = permissions,
+                Tenancy = tenantKey 
             };
         }
         catch (Exception)
@@ -79,19 +101,21 @@ public abstract class LzControllerUtils : IControllerUtils
             throw new Exception("Could not get caller info.");
         }
     }
-    public virtual async Task<string> GetTenantTableAsync(HttpRequest request)
-    {
-        if(!multiTenant)
-            return dynamoDbTable;
-
-        if (request.Headers.TryGetValue("TenantKey", out Microsoft.Extensions.Primitives.StringValues tenantHeader))
-            return await GetTenantTableAsync(tenantHeader);
-        throw new Exception("No TenantKey header");
-    }
-    public virtual async Task<string> GetTenantTableAsync(string header)
+    public virtual async Task<string> GetTenantKeyAsync(HttpRequest request)
     {
         await Task.Delay(0);
-        return dynamoDbTable;
+
+        // First look for TenantKey header
+        StringValues value;
+        if (request.Headers.TryGetValue("tenantKey", out value))
+            return value!;
+        return "";
+    }
+    public virtual async Task<string> GetTenantTableAsync(string tenantKey)
+    {
+        await Task.Delay(0);
+        // Override this method to return the table for a tenantKey if its not the same as the tenantKey
+        return tenantKey; 
     }
 
     // Extract user identity information
@@ -108,6 +132,7 @@ public abstract class LzControllerUtils : IControllerUtils
             foundAuthHeader = request.Headers.TryGetValue("LzIdentity", out authHeader);
         if (foundAuthHeader)
             return GetUserInfo(authHeader);
+
         throw new Exception("No Authorization or LzIdentity header");
     }
     public virtual (string lzUserId, string userName) GetUserInfo(string? header)

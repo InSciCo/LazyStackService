@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\CommonPackageHandling.targets" />
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<Description>LazyStack Notifications DynamoDBRepo</Description>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<ImplicitUsings>enable</ImplicitUsings>

@@ -136,7 +136,7 @@ public abstract
             {
                 TableName = table,
                 Item = envelope.DbRecord,
-                ConditionExpression = "attribute_not_exists(PK)" // Technique to avoid replacing an existing record
+                ConditionExpression = "attribute_not_exists(PK)" // Technique to avoid replacing an existing record. PK refers to PartionKey + SortKey
             };
 
             await client.PutItemAsync(request);
@@ -332,7 +332,7 @@ public abstract
 
     public virtual async Task<ActionResult<TEnv>> UpdateEAsync(string table, T data)
         => await UpdateEAsync(new CallerInfo() { Table = table }, data);
-    public virtual async Task<ActionResult<TEnv>> UpdateEAsync(ICallerInfo callerInfo, T data)
+    public virtual async Task<ActionResult<TEnv>> UpdateEAsync(ICallerInfo callerInfo, T data, bool forceUpdate = false)
     {
         callerInfo ??= new CallerInfo();
         var table = callerInfo.Table;
@@ -349,6 +349,8 @@ public abstract
             var OldUpdateUtcTick = envelope.UpdateUtcTick;
             var now = DateTime.UtcNow.Ticks;
             envelope.UpdateUtcTick = now; // The UpdateUtcTick Set calls SetUpdateUtcTick where you can update your entity data record 
+            if(envelope.CreateUtcTick == 0)
+                envelope.CreateUtcTick = now;   
 
             envelope.SealEnvelope();
 
@@ -358,21 +360,34 @@ public abstract
 
             AddOptionalAttributes(callerInfo, envelope); // Adds any user specified attributes
             AddOptionalTTLAttribute(callerInfo, envelope); // Adds TTL attribute when GetTTL() is not 0
-            var topics = AddOptionalTopicsAttribute(callerInfo, envelope); // Adds Topics attribute when GetTopics() is not empty
+            var topics = AddOptionalTopicsAttribute(callerInfo, envelope); // Adds Topics attribute when GetTopics() is defined
 
-            // Write data to database - use conditional put to avoid overwriting newer data
-            var request = new PutItemRequest()
+            if(forceUpdate)
             {
-                TableName = table,
-                Item = envelope.DbRecord,
-                ConditionExpression = "UpdateUtcTick = :OldUpdateUtcTick",
-                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                // Write data to database - use conditional put to avoid overwriting newer data
+                var request = new PutItemRequest()
+                {
+                    TableName = table,
+                    Item = envelope.DbRecord
+                };
+                await client.PutItemAsync(request);
+            }
+            else
+            {
+                // Write data to database - use conditional put to avoid overwriting newer data
+                var request2 = new PutItemRequest()
+                {
+                    TableName = table,
+                    Item = envelope.DbRecord,
+                    ConditionExpression = "UpdateUtcTick = :OldUpdateUtcTick",
+                    ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
                     {":OldUpdateUtcTick", new AttributeValue() {N = OldUpdateUtcTick.ToString()} }
                 }
-            };
+                };
 
-            await client.PutItemAsync(request); 
+                await client.PutItemAsync(request2);
+            }
 
             var key = $"{table}:{envelope.PK}{envelope.SK}";
             if (cache.ContainsKey(key)) cache[key] = (envelope, DateTime.UtcNow.Ticks);
@@ -390,6 +405,14 @@ public abstract
         catch (AmazonServiceException) { return new StatusCodeResult(503); }
         catch { return new StatusCodeResult(500); }
     }
+    public virtual async Task<ActionResult<T>> UpdateAddAsync(ICallerInfo callerInfo, T data)
+    {
+        callerInfo ??= new CallerInfo();
+        var result = await UpdateEAsync(callerInfo, data, forceUpdate: true);
+        if (result.Result is not null)
+            return result.Result;
+        return result.Value.EntityInstance;
+    }
     public virtual async Task<ActionResult<T>> UpdateAsync(string table, T data)
         => await UpdateAsync(new CallerInfo() { Table = table }, data);
     public virtual async Task<ActionResult<T>> UpdateAsync(ICallerInfo callerInfo, T data)
@@ -397,7 +420,7 @@ public abstract
         callerInfo ??= new CallerInfo();
         var result = await UpdateEAsync(callerInfo, data);
         if (result.Result is not null)
-            return result.Result;
+            return result.Result; 
         return result.Value.EntityInstance;
     }
     public virtual async Task<StatusCodeResult> DeleteAsync(string table, string id)

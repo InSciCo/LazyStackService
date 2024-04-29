@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\CommonPackageHandling.targets" />
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<Description>LazyStack Notifications Repo</Description>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="LazyStack.Notifications.Schema" />
+		<PackageReference Include="LazyStack.Shared" />
 		<ProjectReference Include="..\LazyStack.ControllerBase\LazyStack.ControllerBase.csproj" />
 		<ProjectReference Include="..\LazyStack.DynamoDBRepo\LazyStack.DynamoDBRepo.csproj" />
 	</ItemGroup>

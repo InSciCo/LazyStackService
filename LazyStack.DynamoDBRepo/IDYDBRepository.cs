@@ -73,8 +73,9 @@
         Task<ActionResult<TEnv>> ReadSkEAsync(string table, string indexName, string id, bool? useCache = null);
         Task<ActionResult<TEnv>> ReadSKEAsync(string table, string pK, string indexName, string sK, bool? useCache = null);
         Task<ActionResult<T>> UpdateAsync(ICallerInfo callerInfo, T data);
+        Task<ActionResult<T>> UpdateAddAsync(ICallerInfo callerInfo, T data); 
         Task<ActionResult<T>> UpdateAsync(string table, T data);
-        Task<ActionResult<TEnv>> UpdateEAsync(ICallerInfo callerInfo, T data);
+        Task<ActionResult<TEnv>> UpdateEAsync(ICallerInfo callerInfo, T data, bool forceUpdate = false);
         Task<ActionResult<TEnv>> UpdateEAsync(string table, T data);
     }
 }

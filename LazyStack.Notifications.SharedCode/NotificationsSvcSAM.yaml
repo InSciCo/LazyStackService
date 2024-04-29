@@ -7,7 +7,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: NotificationsWebSocket::NotificationsWebSocket.Function::FunctionHandlerAsync
-      Runtime: dotnet6
+      Runtime: dotnet8
       CodeUri: ../../Lambdas/NotificationsWebSocket/bin/__UriCodeTarget__
       Description: Manage WebSocket Connections
       MemorySize: 256
