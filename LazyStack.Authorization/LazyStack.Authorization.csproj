@@ -10,7 +10,10 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt"/>
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 		<PackageReference Include="Newtonsoft.Json" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\LazyStack.ServiceShared\LazyStack.ServiceShared.csproj" />
 	</ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
-﻿namespace LazyStack.Authorization;
+﻿namespace LazyStack.ServiceShared;
+
 public class CallerInfo : ICallerInfo
 {
     public string? LzUserId { get; set; }

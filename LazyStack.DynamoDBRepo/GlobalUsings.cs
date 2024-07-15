@@ -1,7 +1,7 @@
 ﻿global using Amazon.DynamoDBv2;
 global using Amazon.DynamoDBv2.Model;
 global using Amazon.Runtime;
-global using LazyStack.Authorization;
+global using LazyStack.ServiceShared;
 global using Microsoft.AspNetCore.Mvc;
 global using Newtonsoft.Json;
 global using System;

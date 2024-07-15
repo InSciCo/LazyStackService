@@ -12,10 +12,10 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="AWSSDK.DynamoDBv2"/>
-		<PackageReference Include="Newtonsoft.Json"/>		
+		<PackageReference Include="AWSSDK.DynamoDBv2" />
+		<PackageReference Include="Newtonsoft.Json" />		
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\LazyStack.Authorization\LazyStack.Authorization.csproj" />
+	  <ProjectReference Include="..\LazyStack.ServiceShared\LazyStack.ServiceShared.csproj" />
 	</ItemGroup>
 </Project>
