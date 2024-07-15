@@ -16,6 +16,6 @@
 		<PackageReference Include="Newtonsoft.Json"/>		
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\LazyStack.ControllerBase\LazyStack.ControllerBase.csproj" />
+	  <ProjectReference Include="..\LazyStack.Authorization\LazyStack.Authorization.csproj" />
 	</ItemGroup>
 </Project>

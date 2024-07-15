@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Primitives;
-
-namespace LazyStack.ControllerBase;
-
+namespace LazyStack.Authorization;
 /// <summary>
 /// This abstract class performs common housekeeping tasks for 
 /// controllers. You must implement at least:
@@ -26,7 +24,7 @@ namespace LazyStack.ControllerBase;
 /// In those cases, override the endpoint method to update the table property before 
 /// you make the repository call.
 /// </summary>
-public abstract class LzControllerUtils : IControllerUtils
+public abstract class LzAuthorization : ILzAuthorization
 {
     protected List<string> defaultPerm = new();
     protected List<string> adminPerm = new();
@@ -131,15 +129,12 @@ public abstract class LzControllerUtils : IControllerUtils
 
         return "";
     }
-
-
     public virtual async Task<string> GetTenantTableAsync(string tenantKey)
     {
         await Task.Delay(0);
         // Override this method to return the table for a tenantKey if its not the same as the tenantKey
         return tenantKey; 
     }
-
     // Extract user identity information
     public virtual (string lzUserId, string userName) GetUserInfo(HttpRequest request)
     {
@@ -175,7 +170,14 @@ public abstract class LzControllerUtils : IControllerUtils
         }
         throw new Exception("No Authorization or LzIdentity header");
     }
-    public abstract Task<List<string>> GetUserPermissionsAsync(string lzUserId, string userName, string table);
-    protected abstract Task LoadPermissionsAsync();
+    protected virtual async Task<List<string>> GetUserPermissionsAsync(string lzUserId, string userName, string table)
+    {
+        await Task.Delay(0);
+        return new List<string>();
+    }
+    protected virtual async Task LoadPermissionsAsync()
+    {
+        await Task.Delay(0);
+    }
     
 }

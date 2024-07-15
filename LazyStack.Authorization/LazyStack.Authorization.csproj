@@ -2,17 +2,15 @@
 	<Import Project="..\CommonPackageHandling.targets" />
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<Description>LazyStack Notifications Repo</Description>
+		<Description>Authorization library</Description>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
-
 	<ItemGroup>
-		<PackageReference Include="LazyStack.Shared" />
-		<ProjectReference Include="..\LazyStack.Authorization\LazyStack.Authorization.csproj" />
-		<ProjectReference Include="..\LazyStack.DynamoDBRepo\LazyStack.DynamoDBRepo.csproj" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt"/>
+		<PackageReference Include="Newtonsoft.Json" />
 	</ItemGroup>
-
 </Project>
