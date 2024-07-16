@@ -21,7 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Packages.props = Directory.Packages.props
 		LICENSE.txt = LICENSE.txt
 		NOTIFICATIONS.md = NOTIFICATIONS.md
-		PackageVersions.props = PackageVersions.props
 		.github\workflows\publish-nuget.yaml = .github\workflows\publish-nuget.yaml
 		README.md = README.md
 	EndProjectSection
@@ -31,8 +30,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.Notifications.DynamoDBRepo", "LazyStack.Notifications.DynamoDBRepo\LazyStack.Notifications.DynamoDBRepo.csproj", "{C95BCB4F-E4FC-49F4-B57F-D499BD74E394}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyStack.Authorization", "LazyStack.Authorization\LazyStack.Authorization.csproj", "{F6761D71-C8AE-48FF-92FB-C1B9FC5B953C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LazyStack.ServiceShared", "LazyStack.ServiceShared\LazyStack.ServiceShared.csproj", "{96CA3954-59E4-4604-82F6-F1CB5BDCD343}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,10 +69,6 @@ Global
 		{F6761D71-C8AE-48FF-92FB-C1B9FC5B953C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6761D71-C8AE-48FF-92FB-C1B9FC5B953C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6761D71-C8AE-48FF-92FB-C1B9FC5B953C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{96CA3954-59E4-4604-82F6-F1CB5BDCD343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96CA3954-59E4-4604-82F6-F1CB5BDCD343}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{96CA3954-59E4-4604-82F6-F1CB5BDCD343}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{96CA3954-59E4-4604-82F6-F1CB5BDCD343}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

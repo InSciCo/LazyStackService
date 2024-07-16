@@ -6,7 +6,6 @@ global using System.Threading.Tasks;
 global using System.Collections.ObjectModel;
 global using LazyStack.Shared;
 global using LazyStack.DynamoDBRepo;
-global using LazyStack.ServiceShared;
 
 global using Microsoft.AspNetCore.Mvc;
 global using Amazon.DynamoDBv2;

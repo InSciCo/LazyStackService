@@ -5,7 +5,7 @@ global using System.Text;
 global using System.Threading.Tasks;
 global using LazyStack.DynamoDBRepo;
 global using LazyStack.Notifications.Repo;
-global using LazyStack.ServiceShared;
+global using LazyStack.Shared;
 
 
 global using Amazon.DynamoDBv2;
