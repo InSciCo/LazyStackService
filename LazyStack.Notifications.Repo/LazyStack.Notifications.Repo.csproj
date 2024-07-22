@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="LazyStack.Shared" />
+		<PackageReference Include="LazyStack.Shared.Notifications" />
 		<ProjectReference Include="..\LazyStack.Authorization\LazyStack.Authorization.csproj" />
 		<ProjectReference Include="..\LazyStack.DynamoDBRepo\LazyStack.DynamoDBRepo.csproj" />
 	</ItemGroup>
